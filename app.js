@@ -20,15 +20,17 @@ app.use(cookieParser());
 //Authentication middleware
 const authentication = require("./middleware/authentication");
 
-//Routes
+//Routes import
 const userRoutes = require("./routes/user");
 const labelRoutes = require("./routes/label");
+const customerRoutes = require("./routes/customer");
 
 //Parse json
 app.use(express.json());
 
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/label", authentication, labelRoutes);
+app.use("/api/v1/customer", authentication, customerRoutes);
 
 //Error handling middleware
 app.use(errorHandler);
