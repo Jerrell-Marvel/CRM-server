@@ -1,7 +1,7 @@
 const UnauthorizedError = require("../errors/UnathorizedError");
 const jwt = require("jsonwebtoken");
 
-const authentication = (req, res) => {
+const authentication = (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) {
@@ -9,8 +9,8 @@ const authentication = (req, res) => {
   }
 
   try {
-    const { username, userId } = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { username, userId };
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = { username: payload.username, userId: payload.userId };
     next();
   } catch (err) {
     throw new UnauthorizedError("Invalid token");

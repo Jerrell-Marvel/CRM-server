@@ -4,19 +4,31 @@ const { connect } = require("mongoose");
 const connectDB = require("./db/connectDB");
 const app = express();
 
+//Express async errors
+require("express-async-errors");
+
 // errorHandler import
 const errorHandler = require("./middleware/errorHandler");
 
 //dotenv
 require("dotenv").config();
 
+//Cookie parser
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
+//Authentication middleware
+const authentication = require("./middleware/authentication");
+
 //Routes
 const userRoutes = require("./routes/user");
+const labelRoutes = require("./routes/label");
 
 //Parse json
 app.use(express.json());
 
 app.use("/api/v1", userRoutes);
+app.use("/api/v1/label", authentication, labelRoutes);
 
 //Error handling middleware
 app.use(errorHandler);
