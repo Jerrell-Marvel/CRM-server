@@ -126,6 +126,8 @@ const updateCustomer = async (req, res) => {
       throw new BadRequestError("invalid label id");
     }
 
+    return res.json(err);
+
     //Label id validation fail
     // throw new UnprocessableEntityError("could not process the request due to invalid label id");
   }
@@ -143,4 +145,22 @@ const deleteCustomer = async (req, res) => {
   return res.json({ deletedCustomer });
 };
 
-module.exports = { addCustomer, getCustomers, updateCustomer, deleteCustomer, getCustomer };
+const searchCustomers = async (req, res) => {
+  const { q } = req.query;
+  const { userId } = req.user;
+
+  if (q) {
+    const customers = await Customer.find({
+      $text: {
+        $search: q,
+      },
+      createdBy: userId,
+    });
+
+    return res.json({ customers });
+  }
+
+  throw new BadRequestError("missing required parameter 'q'");
+};
+
+module.exports = { addCustomer, getCustomers, updateCustomer, deleteCustomer, getCustomer, searchCustomers };

@@ -5,6 +5,7 @@ const CustomerSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    index: "text",
   },
   description: {
     type: String,
