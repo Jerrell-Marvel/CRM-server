@@ -22,6 +22,8 @@ const CustomerSchema = new mongoose.Schema({
       validator: async function (labelId) {
         // https://mongoosejs.com/docs/validation.html
         const label = await Label.findOne({ _id: this.get("labelId"), createdBy: this.get("createdBy") });
+
+        // console.log(label);
         return !!label;
       },
     },

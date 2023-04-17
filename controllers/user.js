@@ -1,4 +1,5 @@
 const BadRequestError = require("../errors/BadRequestError");
+const ConflictError = require("../errors/ConflictError");
 const UnauthorizedError = require("../errors/UnathorizedError");
 const User = require("../models/User");
 
@@ -16,8 +17,12 @@ const register = async (req, res) => {
     throw new BadRequestError("Password can't be empty");
   }
 
-  const user = await User.create({ username, email, password });
-  return res.json({ user });
+  try {
+    const user = await User.create({ username, email, password });
+    return res.json({ user });
+  } catch (err) {
+    throw new ConflictError("Email is already registered");
+  }
 };
 
 const login = async (req, res) => {
@@ -44,7 +49,7 @@ const login = async (req, res) => {
 
   const token = await user.createJWT();
 
-  return res.json({ token });
+  return res.cookie("token", token, { sameSite: "none", secure: true, httpOnly: true }).json({ success: true });
 };
 
 module.exports = { login, register };

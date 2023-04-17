@@ -4,6 +4,15 @@ const { connect } = require("mongoose");
 const connectDB = require("./db/connectDB");
 const app = express();
 
+//Cors
+const cors = require("cors");
+app.use(
+  cors({
+    credentials: true,
+    origin: ["http://localhost:3000", "127.0.0.1:5500", "192.168.0.182:3000"],
+  })
+);
+
 //Express async errors
 require("express-async-errors");
 
@@ -25,6 +34,11 @@ const userRoutes = require("./routes/user");
 const labelRoutes = require("./routes/label");
 const customerRoutes = require("./routes/customer");
 
+// routes logger
+app.use((req, res, next) => {
+  console.log(req.originalUrl);
+  next();
+});
 //Parse json
 app.use(express.json());
 

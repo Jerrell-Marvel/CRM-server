@@ -1,6 +1,7 @@
 const BadRequestError = require("../errors/BadRequestError");
 const Label = require("../models/Label");
 const NotFoundError = require("../errors/NotFoundError");
+const Customer = require("../models/Customer");
 
 const addLabel = async (req, res) => {
   const { userId } = req.user;
@@ -38,7 +39,7 @@ const updateLabel = async (req, res) => {
     throw new NotFoundError("Label not found");
   }
 
-  return res.json({ label: { ...updatedLabel._doc } });
+  return res.json({ updatedLabel });
 };
 
 const deleteLabel = async (req, res) => {
@@ -47,6 +48,8 @@ const deleteLabel = async (req, res) => {
 
   // https://www.codingninjas.com/codestudio/library/delete-the-documents-using-mongoose-1218
   const deletedLabel = await Label.findOneAndDelete({ _id: labelId, createdBy: userId });
+  const deletedCustomers = await Customer.deleteMany({ labelId, createdBy: userId });
+  console.log(deletedCustomers);
 
   if (!deletedLabel) {
     throw new NotFoundError("Label not found");
