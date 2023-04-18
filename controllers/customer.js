@@ -33,16 +33,19 @@ const addCustomer = async (req, res) => {
 
 const getCustomers = async (req, res) => {
   const { userId } = req.user;
-  const { label: labelId } = req.query;
+  const { label: labelId, page = 1, limit = 10 } = req.query;
+
+  const skip = (page - 1) * limit;
 
   if (!labelId || labelId === "null") {
     return res.json({ customers: [] });
   }
 
   try {
-    const customers = await Customer.find({ createdBy: userId, labelId });
+    const customers = await Customer.find({ createdBy: userId, labelId }).skip(skip).limit(limit);
     return res.status(200).json({ customers });
   } catch (err) {
+    //Handling cast error
     return res.json({ customers: [] });
   }
 };
@@ -147,7 +150,9 @@ const deleteCustomer = async (req, res) => {
 
 const searchCustomers = async (req, res) => {
   const { q } = req.query;
-  const { userId } = req.user;
+  const { userId, page = 1, limit = 10 } = req.user;
+
+  const skip = (page - 1) * limit;
 
   if (q) {
     const customers = await Customer.find({
@@ -155,7 +160,9 @@ const searchCustomers = async (req, res) => {
         $search: q,
       },
       createdBy: userId,
-    });
+    })
+      .skip(skip)
+      .limit(limit);
 
     return res.json({ customers });
   }
