@@ -33,20 +33,57 @@ const addCustomer = async (req, res) => {
 
 const getCustomers = async (req, res) => {
   const { userId } = req.user;
-  const { label: labelId, page = 1, limit = 10 } = req.query;
+  let { label: labelId, page, limit } = req.query;
+  // let tempPage = page;
+  // let tempLimit = limit;
 
-  const skip = (page - 1) * limit;
+  // if (isNaN(page) || isNaN(limit)) {
+  //   tempPage = 1;
+  //   tempLimit = 10;
+  // }
 
-  if (!labelId || labelId === "null") {
-    return res.json({ customers: [] });
-  }
+  // if (page <= 0) {
+  //   tempPage = 1;
+  // }
+
+  // if (limit <= 0) {
+  //   tempLimit = 10;
+  // }
+
+  // const skip = (tempPage - 1) * tempLimit;
+
+  // if (!labelId || labelId === "null") {
+  //   return res.json({ customers: [], customersCount: 0 });
+  // }
 
   try {
-    const customers = await Customer.find({ createdBy: userId, labelId }).skip(skip).limit(limit);
-    return res.status(200).json({ customers });
+    const result = Customer.find({ createdBy: userId, labelId });
+
+    page = Number(page);
+    limit = Number(limit);
+
+    if (!isNaN(page)) {
+      console.log("here");
+      if (page < 1) {
+        page = 1;
+      }
+
+      if (!limit || isNaN(limit) || limit < 1) {
+        limit = 10;
+      }
+
+      const skip = (page - 1) * limit;
+
+      result.skip(skip).limit(limit);
+    }
+
+    const customers = await result;
+    const customersCount = await Customer.countDocuments({ createdBy: userId, labelId });
+
+    return res.status(200).json({ customers, customersCount });
   } catch (err) {
     //Handling cast error
-    return res.json({ customers: [] });
+    return res.json({ customers: [], customersCount: 0 });
   }
 };
 
@@ -55,6 +92,7 @@ const getCustomer = async (req, res) => {
   const { customerId } = req.params;
   try {
     const customer = await Customer.findOne({ createdBy: userId, _id: customerId });
+
     if (!customer) {
       throw new NotFoundError("Customer not found");
     }
